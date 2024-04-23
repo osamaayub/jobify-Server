@@ -1,6 +1,6 @@
 const { StatusCodes } = require("http-status-codes");
 const Users = require("../modals/UserModel");
-const  Unauthenticated  = require("../errors/CustomError");
+const  {Unauthenticated}  = require("../errors/CustomError");
 const { hashPassword, comparePassword } = require("../utils/passwordUtils");
 const { CreateJWT}  = require("../utils/tokenUtils");
 

@@ -3,27 +3,31 @@ const Jobs = require("../modals/JobModel");
 const cloudinary = require("cloudinary");
 const { StatusCodes } = require("http-status-codes");
 const fileuploadImage = require("../middlewares/formatImage");
-const { BadRequestError } = require("../errors/CustomError");
+const {BadRequestError}=require("../errors/CustomError");
 
 
 
 const getCurrentUser = async (request, response) => {
-  const { id } = request.params;
-  try {
-    const findUser = Users.findById(id);
-    if (!findUser) {
-      return response.status(StatusCodes.NOT_FOUND).json({ msg: "user is not found" });
-    }
-    response.status(StatusCodes.OK).json({findUser });
-  } catch (error) {
-    throw new BadRequestError("user is not valid");
+  try{
+  const findUser=await Users.findOne({email:request.body.email});
+ if (!findUser) return response.status(StatusCodes.NOT_FOUND).json({ msg: "user is not found" });
+  response.status(StatusCodes.OK).json({findUser});
   }
-
+  catch(err){
+    throw new BadRequestError("not found");
+  }
 }
+
 const getAllUsers = async (request, response) => {
-  const users = await Users.countDocuments();
-  const jobs = await Jobs.countDocuments();
-  response.status(StatusCodes.OK).json({ users, jobs });
+  try{
+    const findAllUsers=await Users.find();
+    console.log(findAllUsers);
+    if(!findAllUsers)response.status(StatusCodes.NOT_FOUND).json({msg:"users not found"});
+    return response.status(StatusCodes.OK).json({findAllUsers});
+  }
+  catch(err){
+    throw new BadRequestError("Try again");
+  }
 }
 
 

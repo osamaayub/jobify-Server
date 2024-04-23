@@ -35,7 +35,6 @@ const ValidateIdParam = withValidateErrors([
     if (!job) {
       throw new BadRequestError("No Job found");
     }
-  
     const isAdmin=Users.role=== "Admin";
     const isOwner = Users._id === job.createdBy;
     if (!isAdmin && !isOwner) {
@@ -53,20 +52,20 @@ const ValidateRegisterInput = withValidateErrors([
     }
   }),
   body("password").notEmpty().withMessage("Password is required")
-  .isLength({ min: 8 , max:12 })
-  .withMessage("Password must be at least 8 characters long"),
+  .isLength({ min: 4 , max:12 })
+  .withMessage("Password must be at least 4 characters long"),
   body("location").notEmpty().withMessage("Location is required"),
   body("lastName").notEmpty().withMessage("Last Name is required")
 ]);
 
 const ValidateLoginInput = withValidateErrors([
   body("email").notEmpty().withMessage("Email is required").isEmail().withMessage("Invalid Email"),
-  body("password").notEmpty().withMessage("Password is required").isLength({ min: 8 }).withMessage("Password must be at least 8 characters long")
+  body("password").notEmpty().withMessage("Password is required").isLength({ min: 4 }).withMessage("Password must be at least 4 characters long")
 ]);
 
 const ValidateLogoutInput = withValidateErrors([
   body("email").notEmpty().withMessage("Email is required").isEmail().withMessage("Invalid Email"),
-  body("password").notEmpty().withMessage("Password is required").isLength({ max: 8 }).withMessage("Password must be at most 8 characters long")
+  body("password").notEmpty().withMessage("Password is required").isLength({ max: 8 }).withMessage("Password must be at most 8  characters long")
 ]);
 
 const ValidateUpdateUserInput = withValidateErrors([

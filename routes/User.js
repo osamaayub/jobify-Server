@@ -1,12 +1,12 @@
 const userRouter = require("express").Router();
 const { getCurrentUser, getAllUsers, UpdateUser } = require("../controllers/UsersController");
 const upload = require("../middlewares/formatImage");
-const { ValidateUpdateUserInput } = require("../middlewares/ValidationMiddleWare");
+const { ValidateUpdateUserInput} = require("../middlewares/ValidationMiddleWare");
 const { CheckForTester, authorizedPermission } = require("../middlewares/authMiddleware");
 
 
 //get  a  single user
-userRouter.get("/current-user/:id",getCurrentUser);
+userRouter.get("/current-user",getCurrentUser);
 
 
 //get all admin stats
@@ -23,7 +23,6 @@ userRouter.patch("/update-user",
   CheckForTester,
     UpdateUser,
   upload.single('avatar')
-
 
 
 

@@ -8,6 +8,7 @@ const { BadRequestError } = require("../errors/CustomError");
 const getAllJobs = async (req, res) => {
   try {
     const jobs = await Jobs.find();
+    console.log(jobs);
     res.status(StatusCodes.OK).json({ jobs });
   } catch (error) {
     res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: error.message });
