@@ -3,6 +3,7 @@ const mongoose = require("mongoose");
 const { JOB_STATUS, JOB_TYPE } = require("../utils/Constants");
 const Users = require("../modals/UserModel");
 const Jobs = require("../modals/JobModel");
+const { BadRequestError, UnAuthorized } = require("../errors/CustomError");
 
 const withValidateErrors = (validationValues) => {
   return [
@@ -32,13 +33,13 @@ const ValidateIdParam = withValidateErrors([
     }
     const job = await Jobs.findById(value);
     if (!job) {
-      throw new Error("No Job found");
+      throw new BadRequestError("No Job found");
     }
   
     const isAdmin=Users.role=== "Admin";
     const isOwner = Users._id === job.createdBy;
     if (!isAdmin && !isOwner) {
-      throw new Error("User is not Authorized");
+      throw new UnAuthorized("User is not Authorized");
     }
   })
 ]);

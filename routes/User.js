@@ -5,7 +5,7 @@ const { ValidateUpdateUserInput } = require("../middlewares/ValidationMiddleWare
 const { CheckForTester, authorizedPermission } = require("../middlewares/authMiddleware");
 
 
-//get all users
+//get  a  single user
 userRouter.get("/current-user", getCurrentUser);
 
 
