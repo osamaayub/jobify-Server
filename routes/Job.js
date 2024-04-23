@@ -1,31 +1,26 @@
-const express=require( "express");
-const jobsRouter=express.Router();
-const { getAllJobs,CreateJob,getJob, UpdateJob, DeleteJob, ShowStats }=require( "../controllers/JobsController");
+const jobsRouter = require("express").Router();
+const { getAllJobs, CreateJob, getJob, UpdateJob, DeleteJob, ShowStats } = require("../controllers/JobsController");
+const { ValidateIdParam, ValidateInput } = require("../middlewares/ValidationMiddleWare");
+const { CheckForTester } = require("../middlewares/authMiddleware");
 
-const{ ValidateIdParam,ValidateInput} =require( "../middlewares/ValidationMiddleWare");
-const { CheckForTester }= require("../middlewares/authMiddleware");
-//get all jobs
-jobsRouter.get("/",getAllJobs);
+// Define routes using HTTP verb methods on the router object
 
-//get all jobs stats
-jobsRouter.get("/stats",ShowStats);
+// Get all jobs
+jobsRouter.get("/", getAllJobs);
 
+// Get all jobs stats
+jobsRouter.get("/stats", ShowStats);
 
-//get a single job 
+// Get a single job
+jobsRouter.get("/:id", ValidateIdParam, getJob);
 
-jobsRouter.get("/:id",ValidateIdParam, getJob);
+// Create a new Job
+jobsRouter.post("/", ValidateInput, CheckForTester, CreateJob);
 
-//create a new Job
+// Update a job
+jobsRouter.put("/:id", ValidateInput, ValidateIdParam, CheckForTester, UpdateJob);
 
-jobsRouter.post("/",CreateJob,ValidateInput,CheckForTester);
+// Delete a job
+jobsRouter.delete("/:id", ValidateIdParam, CheckForTester, DeleteJob);
 
-
-//update a job 
-jobsRouter.patch("/:id",UpdateJob,ValidateInput,ValidateIdParam,CheckForTester);
-
-
-//delete a job 
-jobsRouter.delete("/:id",DeleteJob,ValidateIdParam,CheckForTester);
-
-
-module.exports=jobsRouter;
+module.exports = jobsRouter;

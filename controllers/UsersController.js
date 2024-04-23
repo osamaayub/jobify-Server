@@ -1,13 +1,14 @@
-const {Users }=require("../modals/UserModel");
-const {Jobs }=require( "../modals/JobModel");
+const Users =require("../modals/UserModel");
+const Jobs=require( "../modals/JobModel");
 const cloudinary =require("cloudinary");
 const { StatusCodes } =require("http-status-codes");
-const {fileuploadImage} =require("../middlewares/formatImage");
+const fileuploadImage =require("../middlewares/formatImage");
+const { ObjectId } = require("mongodb");
 
 
 
 const getCurrentUser=async(request,response)=>{
-  const user=await  Users.findOne({_id:request.user.userId});
+  const user= await Users.findOne({id:ObjectId});
   const UserPassword=user.toJSON();
   response.status(StatusCodes.OK).json({user:UserPassword});
 
@@ -21,6 +22,7 @@ const getAllUsers=async(request,response)=>{
 
 const UpdateUser=async(request,response)=>{
   const user={...request.body};
+  console.log(user);
   delete user.password;
   delete user.role;
   if(request.file){

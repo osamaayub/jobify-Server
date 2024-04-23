@@ -2,136 +2,81 @@ const day = require("dayjs");
 const { StatusCodes } = require("http-status-codes");
 const mongoose = require("mongoose");
 const Jobs = require("../modals/JobModel");
+const Users = require("../modals/UserModel");
+const { BadRequestError } = require("../errors/CustomError");
 
 const getAllJobs = async (req, res) => {
-  const { search, jobstatus, jobtype } = req.query;
-
-  const queryObject = {
-    createdBy: req.user.userId
-  };
-
-  if (search) {
-    queryObject.$or = [
-      { position: { $regex: search, $options: 'i' } },
-      { company: { $regex: search, $options: 'i' } }
-    ];
+  try {
+    const jobs = await Jobs.find();
+    res.status(StatusCodes.OK).json({ jobs });
+  } catch (error) {
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: error.message });
   }
-
-  if (jobstatus && jobstatus !== 'all') {
-    queryObject.jobstatus = jobstatus;
-  }
-
-  if (jobtype && jobtype !== 'all') {
-    queryObject.jobtype = jobtype;
-  }
-
-  const sortOptions = {
-    newest: "-createdAt",
-    oldest: "createdAt",
-    'a-z': "position",
-    'z-a': "-position" // Corrected sort option
-  };
-
-  const sortkey = sortOptions[req.query.sort] || sortOptions.newest;
-
-  const page = Number(req.query.page) || 1;
-  const limit = Number(req.query.limit) || 10;
-  const skip = (page - 1) * limit;
-
-  const jobs = await Jobs.find(queryObject)
-    .sort(sortkey)
-    .skip(skip)
-    .limit(limit);
-
-  const totalJobs = await Jobs.countDocuments(queryObject);
-  const numOfPages = Math.ceil(totalJobs / limit);
-
-  res.status(StatusCodes.OK).json({ totalJobs, numOfPages, jobs });
-};
-
-const CreateJob = async (req, res) => {
-  req.body.createdBy = req.user.userId;
-  const job = await Jobs.create(req.body);
-  res.status(StatusCodes.OK).json({ job });
-};
-
-const getJob = async (req, res) => {
-  const job = await Jobs.findById(req.params.id);
-  res.status(StatusCodes.OK).json({ job });
-};
-
-const UpdateJob = async (req, res) => {
-  const updatedjob = await Jobs.findByIdAndUpdate(req.params.id, req.body, {
-    new: true
-  });
-  res.status(StatusCodes.OK).json({ updatedjob });
-};
-
-const DeleteJob = async (req, res) => {
-  const deletejob = await Jobs.findByIdAndDelete(req.params.id);
-  res.status(StatusCodes.OK).json({ deletejob });
 };
 
 const ShowStats = async (req, res) => {
-  let stats = await Jobs.aggregate([
-    {
-      $match: { createdBy: new mongoose.Types.ObjectId(req.user.userId) }
-    },
-    {
-      $group: { _id: '$jobStatus', count: { $sum: 1 } }
-    }
-  ]);
-
-  stats = stats.reduce((acc, curr) => {
-    const { _id, count } = curr;
-    acc[_id] = count;
-    return acc;
-  }, {});
-
-  const defaultStats = {
-    pending: stats.pending || 0,
-    interview: stats.interview || 0,
-    declined: stats.declined || 0
-  };
-
-  let MontlyApplications = await Jobs.aggregate([
-    {
-      $match: { createdBy: new mongoose.Types.ObjectId(req.user.userId) }
-    },
-    {
-      $group: {
-        _id: {
-          year: { $year: '$createdAt' },
-          month: { $month: "$createdAt" }
-        },
-        count: { $sum: 1 }
-      }
-    },
-    {
-      $sort: { '_id.year': -1, '_id.month': -1 } // Fixed the sort syntax
-    },
-    {
-      $limit: 6
-    }
-  ]);
-
-  MontlyApplications = MontlyApplications.map(item => {
-    const { _id: { year, month }, count } = item;
-    const date = day()
-      .month(month - 1)
-      .year(year)
-      .format('MM YY');
-    return { date, count };
-  }).reverse();
-
-  res.status(StatusCodes.OK).json({ defaultStats, MontlyApplications });
+  try {
+    const usersCount = await Users.countDocuments();
+    const jobsCount = await Jobs.countDocuments();
+    res.status(StatusCodes.OK).json({ usersCount, jobsCount });
+  } catch (error) {
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: error.message });
+  }
 };
 
-module.exports = {
-  ShowStats,
-  UpdateJob,
-  getAllJobs,
-  getJob,
-  CreateJob,
-  DeleteJob
+const getJob = async (req, res) => {
+  const { id } = req.params;
+  try {
+    const job = await Jobs.findById(id);
+    if (!job) {
+      throw new BadRequestError('Job not found');
+    }
+    res.status(StatusCodes.OK).json({ job });
+  } catch (error) {
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: error.message });
+  }
 };
+
+const CreateJob = async (req, res) => {
+  const { company, position, jobLocation, jobStatus, jobType } = req.body;
+  try {
+    const job = await Jobs.create({
+      company,
+      position,
+      jobLocation,
+      jobStatus,
+      jobType,
+    });
+    res.status(StatusCodes.CREATED).json({ job });
+  } catch (error) {
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: error.message });
+  }
+};
+
+const UpdateJob = async (req, res) => {
+  const { id } = req.params;
+  const { company, position, jobLocation, jobStatus, jobType } = req.body;
+  if (!mongoose.Types.ObjectId.isValid(id)) return res.status(StatusCodes.BAD_REQUEST).json({ msg: "user not found with the id" });
+  try {
+    const updatepost = { company, position, jobStatus, jobType, jobLocation, _id: id };
+    const job = await Jobs.findByIdAndUpdate(id, updatepost, { new: true });
+    if (!job) {
+      throw new BadRequestError('Job not found');
+    }
+    res.status(StatusCodes.OK).json({ job });
+  } catch (error) {
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: error.message });
+  }
+};
+
+const DeleteJob = async (req, res) => {
+  const { id } = req.params;
+  if (!mongoose.Types.ObjectId.isValid(id)) return res.status(StatusCodes.NOT_FOUND).json({ msg: "data your deleting is not available" });
+  
+     await Jobs.findByIdAndDelete(id);
+
+     res.status(StatusCodes.OK).json({msg:"Job is been deleleted"});
+
+};
+
+module.exports = { getAllJobs, ShowStats, getJob, CreateJob, UpdateJob, DeleteJob };

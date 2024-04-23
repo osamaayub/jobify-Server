@@ -4,7 +4,7 @@ const{ Register,logoutController, Login }= require( "../controllers/AuthControll
 
 //Auth Routes
 authRouter.post("/register", ValidateRegisterInput, Register);
-authRouter.post("/login",Login,ValidateLoginInput);
+authRouter.post("/login",ValidateLoginInput,Login);
 authRouter.get("/logout",logoutController);
 
 module.exports=authRouter;

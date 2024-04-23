@@ -5,6 +5,7 @@ const { Schema }=require("mongoose");
 const UserSchema = new Schema({
   name: String,
   password: String,
+  email: String,
   lastName: {
     type: String,
     default: 'lastName'
@@ -24,12 +25,6 @@ const UserSchema = new Schema({
     avatarPublicId: String
   }
 });
-UserSchema.methods.toJSON = function () {
-  let obj = this.toObject()
-  delete obj.password;
-  return obj;
-}
-
 const Users = mongoose.model("users", UserSchema);
 
 module.exports=Users;

@@ -1,19 +1,19 @@
 const { StatusCodes } = require("http-status-codes");
 const Users = require("../modals/UserModel");
-const { Unauthenticated } = require("../errors/CustomError");
+const  Unauthenticated  = require("../errors/CustomError");
 const { hashPassword, comparePassword } = require("../utils/passwordUtils");
-const { CreateJWT } = require("../utils/tokenUtils");
+const { CreateJWT}  = require("../utils/tokenUtils");
 
 
 
 //login
 const Login = async (req, res) => {
-  const user = await Users.findOne({ email: req.body.email });
-  const IsValidPassword = user && await comparePassword(req.body.password, password);
-  console.log(IsValidPassword);
+  const user = await Users.findOne({ email:req.body.email });
+
+
+  const IsValidPassword = user && await comparePassword(req.body.password,user.password);
   if (!IsValidPassword) throw new Unauthenticated("password is not valid");
-  const token = CreateJWT({ userId: user._id, role: user.role });
-  console.log(token);
+  const token = CreateJWT({email:Users.email});
   const expireTime = 1000 * 60 * 5;
   res.cookie('token', token, {
     httpOnly: true,
