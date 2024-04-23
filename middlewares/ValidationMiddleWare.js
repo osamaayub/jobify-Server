@@ -52,7 +52,9 @@ const ValidateRegisterInput = withValidateErrors([
       throw new Error("User already exists");
     }
   }),
-  body("password").notEmpty().withMessage("Password is required").isLength({ min: 8 }).withMessage("Password must be at least 8 characters long"),
+  body("password").notEmpty().withMessage("Password is required")
+  .isLength({ min: 8 , max:12 })
+  .withMessage("Password must be at least 8 characters long"),
   body("location").notEmpty().withMessage("Location is required"),
   body("lastName").notEmpty().withMessage("Last Name is required")
 ]);

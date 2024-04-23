@@ -6,7 +6,7 @@ const { CheckForTester, authorizedPermission } = require("../middlewares/authMid
 
 
 //get  a  single user
-userRouter.get("/current-user", getCurrentUser);
+userRouter.get("/current-user/:id",getCurrentUser);
 
 
 //get all admin stats
