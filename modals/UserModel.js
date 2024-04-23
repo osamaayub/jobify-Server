@@ -20,10 +20,6 @@ const UserSchema = new Schema({
     enum: ['user', 'admin'],
     default: 'user'
   }
-  , avatar: {
-    type: String,
-    avatarPublicId: String
-  }
 });
 const Users = mongoose.model("users", UserSchema);
 

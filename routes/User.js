@@ -1,6 +1,5 @@
 const userRouter = require("express").Router();
 const { getCurrentUser, getAllUsers, UpdateUser } = require("../controllers/UsersController");
-const upload = require("../middlewares/formatImage");
 const { ValidateUpdateUserInput} = require("../middlewares/ValidationMiddleWare");
 const { CheckForTester, authorizedPermission } = require("../middlewares/authMiddleware");
 
@@ -18,12 +17,10 @@ userRouter.get("/admin/app-stats",
 
 
 //update a user
-userRouter.patch("/update-user", 
-  ValidateUpdateUserInput);
+userRouter.put("/update-user", 
   CheckForTester,
-    UpdateUser,
-  upload.single('avatar')
-
+  ValidateUpdateUserInput);
+    UpdateUser
 
 
 module.exports = userRouter;

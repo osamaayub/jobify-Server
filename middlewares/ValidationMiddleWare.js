@@ -36,6 +36,7 @@ const ValidateIdParam = withValidateErrors([
       throw new BadRequestError("No Job found");
     }
     const isAdmin=Users.role=== "Admin";
+    console.log(isAdmin)
     const isOwner = Users._id === job.createdBy;
     if (!isAdmin && !isOwner) {
       throw new UnAuthorized("User is not Authorized");
@@ -70,9 +71,11 @@ const ValidateLogoutInput = withValidateErrors([
 
 const ValidateUpdateUserInput = withValidateErrors([
   body("name").notEmpty().withMessage("Name is required"),
-  body("email").notEmpty().withMessage("Email is required").isEmail().withMessage("Invalid Email").custom(async (value, { req }) => {
-    const user = await Users.findOne({ email: value });
-    if (user && user._id.toString() !== req.user.userId) {
+  body("email").notEmpty().withMessage("Email is required")
+  .isEmail()
+  .withMessage("Invalid Email").custom(async (email, { req }) => {
+    const user=await Users.findOne({email});
+    if (user && user._id!==req.params.id) {
       throw new Error("User already exists");
     }
   }),

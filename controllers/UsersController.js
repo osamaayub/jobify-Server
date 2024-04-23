@@ -1,8 +1,6 @@
 const Users = require("../modals/UserModel");
-const Jobs = require("../modals/JobModel");
-const cloudinary = require("cloudinary");
 const { StatusCodes } = require("http-status-codes");
-const fileuploadImage = require("../middlewares/formatImage");
+const mongoose=require("mongoose");
 const {BadRequestError}=require("../errors/CustomError");
 
 
@@ -21,33 +19,31 @@ const getCurrentUser = async (request, response) => {
 const getAllUsers = async (request, response) => {
   try{
     const findAllUsers=await Users.find();
-    console.log(findAllUsers);
     if(!findAllUsers)response.status(StatusCodes.NOT_FOUND).json({msg:"users not found"});
     return response.status(StatusCodes.OK).json({findAllUsers});
   }
   catch(err){
-    throw new BadRequestError("Try again");
+    response.status(StatusCodes.INTERNAL_SERVER_ERROR).json({msg:"user is not available"});
   }
 }
 
 
 const UpdateUser = async (request, response) => {
-  const user = { ...request.body };
-  console.log(user);
-  delete user.password;
-  delete user.role;
-  if (request.file) {
-    const file = fileuploadImage(request.file);
-    const response = await cloudinary.v2.uploader.upload(file);
-    user.avatar = response.secure_url;
-    user.avatarPublicId = response.public_id;
-  }
-  const UpdateUser = await Users.findByIdAndUpdate(request.user.userId, user);
-  if (request.file && UpdateUser.avatarPublicId) {
-    await cloudinary.v2.uploader.destroy(UpdateUser.avatarPublicId);
-
-  }
-  return response.status(StatusCodes.OK).json({ msg: 'updated user' });
+     const {id}=request.params;
+     const {name,password,lastName,email,location}=request.body;
+    if(!mongoose.Types.ObjectId.isValid(id)){
+    return response.status(StatusCodes.NOT_FOUND).json({msg:"user not found with the searched id"});
+    }
+    try {
+      const updatepost={name,password,lastName,email,location,_id:id};
+      const user=await Users.findByIdAndUpdate(id,updatepost,{new:true});
+      if(!user){
+        throw new BadRequestError("user is not defined");
+      }
+      response.status(StatusCodes.OK).json({user});
+    } catch (error) {
+      response.status(StatusCodes.INTERNAL_SERVER_ERROR).json({msg:"not found"});
+    }
 }
 
 
