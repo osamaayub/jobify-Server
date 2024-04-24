@@ -80,7 +80,9 @@ const ValidateUpdateUserInput = withValidateErrors([
     }
   }),
   body("location").notEmpty().withMessage("Location is required"),
-  body("lastName").notEmpty().withMessage("Last Name is required")
+  body("lastName").notEmpty().withMessage("Last Name is required"),
+  body("role").notEmpty().withMessage("role is required").isIn([
+    "user","admin"]).withMessage("Invalid role")
 ]);
 
 module.exports = { ValidateIdParam, ValidateInput, ValidateLogoutInput, ValidateRegisterInput, ValidateUpdateUserInput, ValidateLoginInput };

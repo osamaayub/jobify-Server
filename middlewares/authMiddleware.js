@@ -22,7 +22,7 @@ const authenticateUser = (req, res, next) => {
 
 const authorizedPermission = (...roles) => {
   return (req, res, next) => {
-    if (!req.user || !roles.includes(req.user.role)) {
+    if (!roles.includes(req.user.role)) {
       throw new UnAuthorized("Unauthorized to access this route");
     }
     next();

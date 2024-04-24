@@ -11,7 +11,7 @@ userRouter.get("/current-user",getCurrentUser);
 //get all admin stats
 
 userRouter.get("/admin/app-stats",
- authorizedPermission('admin'),
+//  authorizedPermission('admin'),
  getAllUsers
 );
 
