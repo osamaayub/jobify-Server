@@ -73,7 +73,8 @@ const ValidateUpdateUserInput = withValidateErrors([
   body("name").notEmpty().withMessage("Name is required"),
   body("email").notEmpty().withMessage("Email is required")
   .isEmail()
-  .withMessage("Invalid Email").custom(async (email, { req }) => {
+  .withMessage("Invalid Email")
+  .custom(async (email, { req }) => {
     const user=await Users.findOne({email});
     if (user && user._id!==req.params.id) {
       throw new Error("User already exists");

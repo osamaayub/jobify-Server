@@ -27,7 +27,7 @@ class Unauthenticated extends Error{
  class UnAuthorized extends Error{
   constructor(message){
     super(message);
-    this.name='Un Authorized User',
+    this.name='UnAuthorized User',
     this.StatusCodes=StatusCodes.FORBIDDEN;
   }
 }

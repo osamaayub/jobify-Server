@@ -31,19 +31,17 @@ const getAllUsers = async (request, response) => {
 
 const UpdateUser = async (request, response) => {
   const { id } = request.params;
-  const { name, password, lastName, email, location } = request.body;
-  if (!mongoose.Types.ObjectId.isValid(id)) {
-    return response.status(StatusCodes.NOT_FOUND).json({ msg: "user not found with the searched id" });
-  }
+  const { name, lastName, email, password, role } = request.body;
+
+  if (!mongoose.Types.ObjectId.isValid(id)) 
+  return response.status(StatusCodes.BAD_REQUEST).json({ msg: "Invalid Id" });
   try {
-    const updatepost = { name, password, lastName, email, location, _id: id };
+    const updatepost = {name, lastName, email, password, role, _id: id };
     const user = await Users.findByIdAndUpdate(id, updatepost, { new: true });
-    if (!user) {
-      throw new BadRequestError("user is not defined");
-    }
+
     response.status(StatusCodes.OK).json({ user });
   } catch (error) {
-    response.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ msg: "not found" });
+    response.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: error.message });
   }
 }
 

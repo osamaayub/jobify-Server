@@ -1,6 +1,6 @@
 const { StatusCodes } = require("http-status-codes");
 const Users = require("../modals/UserModel");
-const  {Unauthenticated}  = require("../errors/CustomError");
+const  {Unauthenticated, UnAuthorized}  = require("../errors/CustomError");
 const { hashPassword, comparePassword } = require("../utils/passwordUtils");
 const { CreateJWT}  = require("../utils/tokenUtils");
 
@@ -8,19 +8,19 @@ const { CreateJWT}  = require("../utils/tokenUtils");
 
 //login
 const Login = async (req, res) => {
-  const user = await Users.findOne({ email:req.body.email });
+  const{email,password}=req.body;
+  const user = await Users.findOne({ email});
+  if(!user) return res.status(StatusCodes.NOT_FOUND).json({msg:"user not found"});
+  const IsValidPassword = user && await comparePassword(password,user.password);
+  if (!IsValidPassword) throw new UnAuthorized("password is not valid");
+  
+  const token=CreateJWT({email,password});
+  res.cookie("token",token,{
+    withCredentials:true,
+    httpOnly:true
 
-
-  const IsValidPassword = user && await comparePassword(req.body.password,user.password);
-  if (!IsValidPassword) throw new Unauthenticated("password is not valid");
-  const token = CreateJWT({email:Users.email});
-  const expireTime = 1000 * 60 * 5;
-  res.cookie('token', token, {
-    httpOnly: true,
-    expires: new Date(Date.now() + expireTime),
-    secure: process.env.NODE_ENV === "production"
-  });
-  res.status(StatusCodes.OK).json({ msg: "user is logged In" });
+  })
+  res.status(StatusCodes.OK).json({msg:"user is logged in",token:token});
 
 }
 
