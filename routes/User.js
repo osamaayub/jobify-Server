@@ -22,6 +22,9 @@ userRouter.put("/update-user/:id",
   ValidateUpdateUserInput,
   UpdateUser
 )
+userRouter.patch("/update-user/:id",
+ValidateUpdateUserInput
+)
 
 
 module.exports = userRouter;

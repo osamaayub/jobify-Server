@@ -10,7 +10,6 @@ const mongoSanitize = require('express-mongo-sanitize');
 const userRouter = require("./routes/User");
 const authRouter = require("./routes/auth");
 const JobsRouter = require("./routes/Job");
-const path = require("path");
 const cors = require("cors");
 const rateLimiter = require("express-rate-limit");
 
@@ -22,9 +21,10 @@ const apiLimiter = rateLimiter({
   message: { msg: "IP rate limit exceded,retry in 15 minutes" }
 });
 
-__dirname = path.dirname(__filename);
 if (process.env.NODE_ENV === 'development') {
   app.use(morgan('dev'));
+  
+  
 
   app.use(cors()); //cors
   app.use(cookieParser()); //cookie

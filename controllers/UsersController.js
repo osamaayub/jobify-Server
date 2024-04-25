@@ -4,7 +4,7 @@ const mongoose = require("mongoose");
 const { BadRequestError } = require("../errors/CustomError");
 
 
-
+//get a single user
 const getCurrentUser = async (request, response) => {
   try {
     const findUser = await Users.findOne({ email: request.body.email });
@@ -15,7 +15,7 @@ const getCurrentUser = async (request, response) => {
     throw new BadRequestError("not found");
   }
 }
-
+//get all users
 const getAllUsers = async (request, response) => {
   try {
     const findUsers = await Users.find();
@@ -28,7 +28,7 @@ const getAllUsers = async (request, response) => {
 
 }
 
-
+  //update users  using put
 const UpdateUser = async (request, response) => {
   const { id } = request.params;
   const { name, lastName, email, password, role } = request.body;
@@ -44,6 +44,7 @@ const UpdateUser = async (request, response) => {
     response.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: error.message });
   }
 }
+
 
 
 module.exports = { getCurrentUser, getAllUsers, UpdateUser };
